@@ -1,37 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import {
+  Bell,
+  BookOpen,
+  CheckCircle,
   ChevronDown,
   ChevronRight,
-  Settings,
-  ShoppingBag,
-  BookOpen,
-  Network,
-  User,
-  Sparkles,
-  CheckCircle,
   CreditCard,
-  Bell,
+  Database,
   LogOut,
-  BarChart3,
-  Boxes,
+  Network,
+  Settings,
+  Sparkles,
   Table,
-  icons,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
@@ -45,67 +30,66 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { url } from "inspector";
-const data = [
-  {
-    _id: "69256a36812495b2266ce404",
-    name: "products",
-    displayName: "Products",
-    description: "Product catalog management",
-    icon: "shopping-cart",
-    timestamps: true,
-    softDelete: true,
-    enableApi: true,
-    version: 1,
-    createdAt: "2025-11-25T08:35:02.327Z",
-    updatedAt: "2025-11-25T08:35:02.327Z",
-    __v: 0,
-  },
-];
-// Menu items with collapsible sections
-const menuItems = [
-  {
-    title: "Entity",
-    icon: Table,
-    url: "entities",
-    items: data.map((item) => ({
-      title: item.displayName,
-      url: `entities/${item.name}`,
-    })),
-  },
-  {
-    title: "Models",
-    icon: Network,
-    url: "#",
-  },
-  {
-    title: "Documentation",
-    icon: BookOpen,
-    url: "#",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    url: "#",
-  },
-];
-
-// Teams data
-const teams = [
-  { name: "Acme Inc", icon: ShoppingBag, shortcut: "⌘1" },
-  { name: "Acme Corp.", icon: BarChart3, shortcut: "⌘2" },
-  { name: "Evil Corp.", icon: Boxes, shortcut: "⌘3" },
-];
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { selectDatabase } from "@/redux/store/slices/databaseSlice";
+import { useSelector } from "react-redux";
+import { useSidebarHandle } from "./useSidebarHandle";
+import { selectAuthLogin } from "@/redux/store/slices/loginSlice";
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { selectedDatabase } = useSelector(selectDatabase);
+  const { userProfile } = useSelector(selectAuthLogin);
+  const { data: databasesData } = useSidebarHandle();
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     Platform: true,
   });
-  const [activeTeam, setActiveTeam] = useState(teams[0]);
+  const [activeTeam, setActiveTeam] = useState(selectedDatabase);
   const isCollapsed = state === "collapsed";
+  const [entitiesData] = useState<any[]>([]);
+  const menuItems = [
+    {
+      title: "Entity",
+      icon: Table,
+      url: "entities",
+      items: [
+        { title: "Create New Entity", url: "admin/entities" },
+        ...entitiesData.map((item) => ({
+          title: item.displayName,
+          url: `entities/${item.name}`,
+        })),
+      ],
+    },
+    {
+      title: "Models",
+      icon: Network,
+      url: "#",
+    },
+    {
+      title: "Documentation",
+      icon: BookOpen,
+      url: "#",
+    },
+    {
+      title: "Settings",
+      icon: Settings,
+      url: "#",
+    },
+  ];
 
-  const ActiveIcon = activeTeam.icon;
+  const ActiveIcon = Database;
 
   const toggleSection = (title: string) => {
     setOpenSections((prev) => ({
@@ -124,17 +108,17 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                  tooltip={activeTeam.name}
+                  tooltip={activeTeam?.displayName}
                 >
                   <div className="flex flex-none size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                     <ActiveIcon className="size-4 flex-none" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      {activeTeam.name}
+                      {activeTeam?.displayName}
                     </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      Enterprise
+                      {activeTeam?.name}
                     </span>
                   </div>
                   <ChevronDown className="ml-auto" />
@@ -147,22 +131,21 @@ export function AppSidebar() {
                 sideOffset={4}
               >
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Teams
+                  Database
                 </DropdownMenuLabel>
-                {teams.map((team) => {
-                  const TeamIcon = team.icon;
+                {databasesData?.data.map((team) => {
                   return (
                     <DropdownMenuItem
-                      key={team.name}
+                      key={team.id}
                       onClick={() => setActiveTeam(team)}
                       className="gap-2 p-2"
                     >
                       <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                        <TeamIcon className="size-4 flex-none" />
+                        {team.icon}
                       </div>
-                      {team.name}
+                      {team.displayName}
                       <span className="ml-auto text-xs text-muted-foreground">
-                        {team.shortcut}
+                        {team.name}
                       </span>
                     </DropdownMenuItem>
                   );
@@ -236,9 +219,11 @@ export function AppSidebar() {
                     <User className="size-4 text-white flex-none" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">shadcn</span>
+                    <span className="truncate font-semibold">
+                      {userProfile.firstName + " " + userProfile.lastName}
+                    </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      m@example.com
+                      {userProfile.email}
                     </span>
                   </div>
                   <ChevronDown className="ml-auto size-4" />
@@ -256,9 +241,12 @@ export function AppSidebar() {
                       <User className="size-4 text-white" />
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">shadcn</span>
+                      <span className="truncate font-semibold">
+                        {" "}
+                        {userProfile.firstName + " " + userProfile.lastName}
+                      </span>
                       <span className="truncate text-xs text-muted-foreground">
-                        m@example.com
+                        {userProfile.email}
                       </span>
                     </div>
                   </div>

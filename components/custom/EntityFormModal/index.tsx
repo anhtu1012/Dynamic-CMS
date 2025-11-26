@@ -29,7 +29,7 @@ import { FieldConfig } from "@/app/admin/entities/[entityName]/_components/Field
 import {
   type EntityFormData,
   type FieldFormData,
-} from "@/lib/schemas/entity.schema";
+} from "@/lib/schemas/entity/entity.schema";
 import { toast } from "sonner";
 
 interface EntityFormModalProps {
@@ -131,7 +131,7 @@ export function EntityFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl min-w-[50vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit Entity" : "Create New Entity"}

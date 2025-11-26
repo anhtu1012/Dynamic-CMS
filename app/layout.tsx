@@ -5,6 +5,8 @@ import { Toaster } from "sonner";
 import React from "react";
 import ErrorBoundary from "@/components/System/ErrorBoundary";
 import Loading from "@/components/System/loading";
+import { ReduxProvider } from "./StoreProvider";
+import QueryProvider from "./QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,10 +33,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ErrorBoundary>
-          <React.Suspense fallback={<Loading />}>{children}</React.Suspense>
-        </ErrorBoundary>
-        <Toaster />
+        {" "}
+        <ReduxProvider>
+          <QueryProvider>
+            <ErrorBoundary>
+              <React.Suspense fallback={<Loading />}>{children}</React.Suspense>
+            </ErrorBoundary>
+            <Toaster />
+          </QueryProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

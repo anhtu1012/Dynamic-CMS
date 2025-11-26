@@ -151,3 +151,29 @@
     --sidebar-ring: oklch(0.439 0 0);
   }
 }
+
+/* Global: make all scrollbars thinner and use light-gray thumb by default.
+   This ensures elements styled with inline `overflowY: "auto"` pick up the thinner thumb
+   without needing to add a class. If you prefer scoping, tell me and I'll limit it. */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #cfcfcf;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 transparent;
+}

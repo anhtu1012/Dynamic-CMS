@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { EntityFormModal } from "@/components/custom/EntityFormModal";
 import { DataTable } from "@/components/custom/DataTable/data-table";
 import { toast } from "sonner";
-import type { EntityFormData } from "@/lib/schemas/entity.schema";
+import type { EntityFormData } from "@/lib/schemas/entity/entity.schema";
 import type { ColumnDef } from "@tanstack/react-table";
 
 interface Entity extends EntityFormData {
