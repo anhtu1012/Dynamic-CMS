@@ -45,7 +45,7 @@ const fieldTypes = [
 
 export function FieldConfig({ field, onUpdate, onRemove }: FieldConfigProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   const updateField = (updates: Partial<FieldFormData>) => {
     onUpdate({ ...field, ...updates });
@@ -85,6 +85,7 @@ export function FieldConfig({ field, onUpdate, onRemove }: FieldConfigProps) {
 
         <div className="flex items-center space-x-2">
           <Button
+            type="button"
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed((s) => !s)}
@@ -97,7 +98,7 @@ export function FieldConfig({ field, onUpdate, onRemove }: FieldConfigProps) {
             )}
           </Button>
 
-          <Button variant="ghost" size="icon" onClick={onRemove}>
+          <Button type="button" variant="ghost" size="icon" onClick={onRemove}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>

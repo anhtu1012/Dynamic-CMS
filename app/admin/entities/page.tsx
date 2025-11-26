@@ -1,10 +1,9 @@
 "use client";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
-import { mockEntities } from "@/lib/mock-data/entities";
+import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,74 +15,59 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { EntityFormModal } from "@/components/custom/EntityFormModal";
 import { DataTable } from "@/components/custom/DataTable/data-table";
-import { toast } from "sonner";
-import type { EntityFormData } from "@/lib/schemas/entity/entity.schema";
+import type {
+  EntitiesListResponse,
+  EntityResponse,
+} from "@/lib/schemas/entity/entity.response";
 import type { ColumnDef } from "@tanstack/react-table";
-
-interface Entity extends EntityFormData {
-  _id: string;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
-}
+import {
+  useEntities,
+  useCreateEntity,
+  useUpdateEntity,
+  useDeleteEntity,
+} from "./_hooks/useEntities";
+import type { RootState } from "@/redux/store";
 
 export default function EntitiesPage() {
-  const [entities, setEntities] = useState<Entity[]>([]);
-  const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedEntity, setSelectedEntity] = useState<Entity | undefined>();
+  const [selectedEntity, setSelectedEntity] = useState<
+    EntityResponse | undefined
+  >();
 
-  const fetchEntities = async () => {
-    try {
-      setLoading(true);
-      // Use mock data for testing
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API delay
-      setEntities(mockEntities as any);
+  // Get selected database from Redux store
+  const selectedDatabase = useSelector(
+    (state: RootState) => state.database.selectedDatabase
+  );
 
-      // Real API call (uncomment when ready):
-      // const response = await fetch('/api/collection-schemas');
-      // if (!response.ok) throw new Error('Failed to fetch entities');
-      // const data = await response.json();
-      // setEntities(data);
-    } catch (error) {
-      console.error("Error fetching entities:", error);
-      toast.error("Failed to load entities");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use react-query hooks
+  const { data: entitiesResponse, isLoading } = useEntities(
+    selectedDatabase?.id
+  );
+  const createEntity = useCreateEntity();
+  const updateEntity = useUpdateEntity();
+  const deleteEntity = useDeleteEntity();
 
-  useEffect(() => {
-    fetchEntities();
-  }, []);
+  const entities = (entitiesResponse as EntitiesListResponse)?.data || [];
 
   const handleCreate = () => {
     setSelectedEntity(undefined);
     setModalOpen(true);
   };
 
-  const handleEdit = useCallback((entity: Entity) => {
+  const handleEdit = useCallback((entity: EntityResponse) => {
     setSelectedEntity(entity);
     setModalOpen(true);
   }, []);
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (!confirm("Are you sure you want to delete this entity?")) return;
+  const handleDelete = useCallback(
+    async (id: string, databaseId: string) => {
+      if (!confirm("Are you sure you want to delete this entity?")) return;
+      deleteEntity.mutate({ id, databaseId });
+    },
+    [deleteEntity]
+  );
 
-    try {
-      const response = await fetch(`/api/collection-schemas/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to delete entity");
-      toast.success("Entity deleted successfully");
-      fetchEntities();
-    } catch (error) {
-      console.error("Error deleting entity:", error);
-      toast.error("Failed to delete entity");
-    }
-  }, []);
-
-  const columns = useMemo<ColumnDef<Entity>[]>(
+  const columns = useMemo<ColumnDef<EntityResponse>[]>(
     () => [
       {
         accessorKey: "name",
@@ -162,7 +146,9 @@ export default function EntitiesPage() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => handleDelete(row.original._id)}
+              onClick={() =>
+                handleDelete(row.original._id, row.original.databaseId)
+              }
             >
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
@@ -196,7 +182,7 @@ export default function EntitiesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {loading ? (
+          {isLoading ? (
             <div className="text-center py-12 text-muted-foreground">
               Loading...
             </div>
@@ -209,7 +195,7 @@ export default function EntitiesPage() {
               </Button>
             </div>
           ) : (
-            <DataTable columns={columns} data={entities} />
+            <DataTable<EntityResponse> columns={columns} data={entities} />
           )}
         </CardContent>
       </Card>
@@ -218,7 +204,9 @@ export default function EntitiesPage() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         entity={selectedEntity}
-        onSuccess={fetchEntities}
+        databaseId={selectedDatabase?.id}
+        createMutation={createEntity}
+        updateMutation={updateEntity}
       />
     </div>
   );

@@ -3,20 +3,14 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "@tanstack/react-form";
-import { Plus, Save, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -30,23 +24,55 @@ import {
   type EntityFormData,
   type FieldFormData,
 } from "@/lib/schemas/entity/entity.schema";
-import { toast } from "sonner";
+import type { EntityResponse } from "@/lib/schemas/entity/entity.response";
+import type {
+  CreateEntityRequestItem,
+  UpdateEntityRequestItem,
+} from "@/lib/schemas/entity/entity.request";
+import type { UseMutationResult } from "@tanstack/react-query";
 
 interface EntityFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  entity?: EntityFormData & { _id?: string };
-  onSuccess?: () => void;
+  entity?: EntityResponse;
+  databaseId?: string;
+  createMutation?: UseMutationResult<
+    any,
+    unknown,
+    CreateEntityRequestItem,
+    unknown
+  >;
+  updateMutation?: UseMutationResult<
+    any,
+    unknown,
+    { id: string; formData: UpdateEntityRequestItem },
+    unknown
+  >;
 }
 
 export function EntityFormModal({
   open,
   onOpenChange,
   entity,
-  onSuccess,
+  databaseId,
+  createMutation,
+  updateMutation,
 }: EntityFormModalProps) {
-  const [fields, setFields] = useState<FieldFormData[]>([]);
-  const isEdit = !!entity;
+  // Initialize fields from entity prop, only when component mounts or entity changes
+  const [fields, setFields] = useState<FieldFormData[]>(
+    () => entity?.fields || []
+  );
+  const isEdit = !!entity?._id;
+
+  // Reset fields when entity changes (switching between create/edit or different entities)
+  useEffect(() => {
+    // Use setTimeout to defer the state update and avoid cascading renders
+    const timeoutId = setTimeout(() => {
+      setFields(entity?.fields || []);
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
+  }, [entity?._id, entity?.fields]);
 
   const form = useForm({
     defaultValues: {
@@ -67,43 +93,42 @@ export function EntityFormModal({
       },
     } satisfies Partial<EntityFormData>,
     onSubmit: async ({ value }) => {
-      try {
-        const formData = { ...value, fields };
+      if (!databaseId && !isEdit) {
+        console.error("Database ID is required for creating entity");
+        return;
+      }
 
-        const url = isEdit
-          ? `/api/collection-schemas/${entity._id}`
-          : "/api/collection-schemas";
+      const formData = { ...value, fields };
 
-        const response = await fetch(url, {
-          method: isEdit ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
-
-        if (!response.ok) throw new Error("Failed to save entity");
-
-        toast.success(
-          isEdit
-            ? "Entity updated successfully!"
-            : "Entity created successfully!"
+      if (isEdit && entity?._id && updateMutation) {
+        // Update existing entity
+        updateMutation.mutate(
+          {
+            id: entity._id,
+            formData: formData as UpdateEntityRequestItem,
+          },
+          {
+            onSuccess: () => {
+              onOpenChange(false);
+            },
+          }
         );
-        onOpenChange(false);
-        onSuccess?.();
-      } catch (error) {
-        console.error("Error saving entity:", error);
-        toast.error("Failed to save entity");
+      } else if (!isEdit && databaseId && createMutation) {
+        // Create new entity
+        createMutation.mutate(
+          {
+            ...formData,
+            databaseId,
+          } as CreateEntityRequestItem,
+          {
+            onSuccess: () => {
+              onOpenChange(false);
+            },
+          }
+        );
       }
     },
   });
-
-  // Load entity fields when editing
-  useEffect(() => {
-    if (entity?.fields) {
-      setFields(entity.fields);
-    } else {
-      setFields([]);
-    }
-  }, [entity]);
 
   const addField = () => {
     const newField: FieldFormData = {
@@ -241,20 +266,6 @@ export function EntityFormModal({
             {/* Fields Tab */}
             <TabsContent value="fields">
               <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Entity Fields</CardTitle>
-                      <CardDescription>
-                        Define the fields for your entity
-                      </CardDescription>
-                    </div>
-                    <Button type="button" onClick={addField} size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Field
-                    </Button>
-                  </div>
-                </CardHeader>
                 <CardContent className="space-y-4">
                   {fields.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
@@ -270,16 +281,29 @@ export function EntityFormModal({
                       </Button>
                     </div>
                   ) : (
-                    fields.map((field, index) => (
-                      <FieldConfig
-                        key={index}
-                        field={field}
-                        onUpdate={(updatedField) =>
-                          updateField(index, updatedField)
-                        }
-                        onRemove={() => removeField(index)}
-                      />
-                    ))
+                    <>
+                      {fields.map((field, index) => (
+                        <FieldConfig
+                          key={index}
+                          field={field}
+                          onUpdate={(updatedField) =>
+                            updateField(index, updatedField)
+                          }
+                          onRemove={() => removeField(index)}
+                        />
+                      ))}
+                      <div className="text-center text-muted-foreground">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="mt-4"
+                          onClick={addField}
+                          size="sm"
+                        >
+                          Add New Field
+                        </Button>
+                      </div>
+                    </>
                   )}
                 </CardContent>
               </Card>
