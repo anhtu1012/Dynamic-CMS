@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { useEntities } from "@/app/admin/entities/_hooks/useEntities";
 import {
   Collapsible,
   CollapsibleContent,
@@ -43,22 +44,32 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { selectDatabase } from "@/redux/store/slices/databaseSlice";
-import { useSelector } from "react-redux";
-import { useSidebarHandle } from "./useSidebarHandle";
+import { DatabaseSchema } from "@/lib/schemas/databases/databases.schema";
+import {
+  selectDatabase,
+  setSelectedDatabase,
+} from "@/redux/store/slices/databaseSlice";
 import { selectAuthLogin } from "@/redux/store/slices/loginSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useSidebarHandle } from "./useSidebarHandle";
+import { EntitiesListResponse } from "@/lib/schemas/entity/entity.response";
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const dispatch = useDispatch();
   const { selectedDatabase } = useSelector(selectDatabase);
   const { userProfile } = useSelector(selectAuthLogin);
   const { data: databasesData } = useSidebarHandle();
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     Platform: true,
   });
-  const [activeTeam, setActiveTeam] = useState(selectedDatabase);
+
+  const handleDatabaseChange = (database: DatabaseSchema) => {
+    dispatch(setSelectedDatabase(database));
+  };
+
   const isCollapsed = state === "collapsed";
-  const [entitiesData] = useState<any[]>([]);
+  const { data: entitiesResponse } = useEntities(selectedDatabase?.id);
   const menuItems = [
     {
       title: "Entity",
@@ -66,10 +77,12 @@ export function AppSidebar() {
       url: "entities",
       items: [
         { title: "Create New Entity", url: "admin/entities" },
-        ...entitiesData.map((item) => ({
-          title: item.displayName,
-          url: `entities/${item.name}`,
-        })),
+        ...((entitiesResponse as EntitiesListResponse)?.data ?? []).map(
+          (item) => ({
+            title: item.displayName,
+            url: `entities/${item.name}`,
+          })
+        ),
       ],
     },
     {
@@ -108,17 +121,17 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                  tooltip={activeTeam?.displayName}
+                  tooltip={selectedDatabase?.displayName}
                 >
                   <div className="flex flex-none size-8 items-center justify-center rounded-lg bg-blue-600 text-white">
                     <ActiveIcon className="size-4 flex-none" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      {activeTeam?.displayName}
+                      {selectedDatabase?.displayName}
                     </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {activeTeam?.name}
+                      {selectedDatabase?.name}
                     </span>
                   </div>
                   <ChevronDown className="ml-auto" />
@@ -137,7 +150,7 @@ export function AppSidebar() {
                   return (
                     <DropdownMenuItem
                       key={team.id}
-                      onClick={() => setActiveTeam(team)}
+                      onClick={() => handleDatabaseChange(team as any)}
                       className="gap-2 p-2"
                     >
                       <div className="flex size-6 items-center justify-center rounded-md border bg-background">

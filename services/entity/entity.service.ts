@@ -44,6 +44,9 @@ class EntityServicesBase extends AxiosService {
   async getEntityById(id: string): Promise<SingleEntitiesResponse> {
     return this.get<SingleEntitiesResponse>(`${this.basePath}/${id}`);
   }
+  async getEntityByName(name: string): Promise<SingleEntitiesResponse> {
+    return this.get<SingleEntitiesResponse>(`${this.basePath}/by-name/${name}`);
+  }
 
   // Update entity by id
   async updateEntity(
@@ -67,7 +70,7 @@ class EntityServicesBase extends AxiosService {
 
   // Permanent delete entity
   async deactivateEntityPermanent(id: string): Promise<void> {
-    await this.delete<void>(`${this.basePath}/${id}/permanent`);
+    await this.delete<void>(`${this.basePath}/${id}`);
   }
 }
 

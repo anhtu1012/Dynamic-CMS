@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Plus, Pencil, Trash2, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { EntityFormModal } from "@/components/custom/EntityFormModal";
+import { EntityFormModal } from "@/app/admin/entities/_components/EntityFormModal";
+import { ConfirmDialog } from "@/components/custom/ConfirmDialog";
 import { DataTable } from "@/components/custom/DataTable/data-table";
 import type {
   EntitiesListResponse,
@@ -27,27 +28,40 @@ import {
   useDeleteEntity,
 } from "./_hooks/useEntities";
 import type { RootState } from "@/redux/store";
+import { formEventClient } from "@tanstack/react-form";
 
 export default function EntitiesPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [entityToDelete, setEntityToDelete] = useState<{
+    id: string;
+    databaseId: string;
+    name: string;
+  } | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<
     EntityResponse | undefined
   >();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
 
   // Get selected database from Redux store
   const selectedDatabase = useSelector(
     (state: RootState) => state.database.selectedDatabase
   );
 
-  // Use react-query hooks
-  const { data: entitiesResponse, isLoading } = useEntities(
-    selectedDatabase?.id
-  );
+  // Use react-query hooks with pagination
+  const {
+    data: entitiesResponse,
+    isLoading,
+    refetch,
+    isFetching,
+  } = useEntities(selectedDatabase?.id, currentPage, pageSize);
   const createEntity = useCreateEntity();
   const updateEntity = useUpdateEntity();
   const deleteEntity = useDeleteEntity();
 
   const entities = (entitiesResponse as EntitiesListResponse)?.data || [];
+  const totalItems = (entitiesResponse as EntitiesListResponse)?.total || 0;
 
   const handleCreate = () => {
     setSelectedEntity(undefined);
@@ -60,12 +74,30 @@ export default function EntitiesPage() {
   }, []);
 
   const handleDelete = useCallback(
-    async (id: string, databaseId: string) => {
-      if (!confirm("Are you sure you want to delete this entity?")) return;
-      deleteEntity.mutate({ id, databaseId });
+    (id: string, databaseId: string, name: string) => {
+      setEntityToDelete({ id, databaseId, name });
+      setConfirmOpen(true);
     },
-    [deleteEntity]
+    []
   );
+
+  const handleConfirmDelete = useCallback(() => {
+    if (entityToDelete) {
+      deleteEntity.mutate({
+        id: entityToDelete.id,
+        databaseId: entityToDelete.databaseId,
+      });
+      setEntityToDelete(null);
+    }
+  }, [entityToDelete, deleteEntity]);
+
+  const handleRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
 
   const columns = useMemo<ColumnDef<EntityResponse>[]>(
     () => [
@@ -147,7 +179,11 @@ export default function EntitiesPage() {
               variant="ghost"
               size="icon"
               onClick={() =>
-                handleDelete(row.original._id, row.original.databaseId)
+                handleDelete(
+                  row.original._id,
+                  row.original.databaseId,
+                  row.original.displayName
+                )
               }
             >
               <Trash2 className="h-4 w-4 text-destructive" />
@@ -168,10 +204,22 @@ export default function EntitiesPage() {
             Manage your data entities and their configurations
           </p>
         </div>
-        <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Entity
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={isFetching}
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${isFetching ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
+          <Button onClick={handleCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Entity
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -195,7 +243,14 @@ export default function EntitiesPage() {
               </Button>
             </div>
           ) : (
-            <DataTable<EntityResponse> columns={columns} data={entities} />
+            <DataTable<EntityResponse>
+              columns={columns}
+              data={entities}
+              usePagination={true}
+              pageSize={pageSize}
+              totalItems={totalItems}
+              onPageChange={handlePageChange}
+            />
           )}
         </CardContent>
       </Card>
@@ -207,6 +262,21 @@ export default function EntitiesPage() {
         databaseId={selectedDatabase?.id}
         createMutation={createEntity}
         updateMutation={updateEntity}
+      />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleConfirmDelete}
+        title="Delete Entity"
+        description={
+          entityToDelete
+            ? `Are you sure you want to delete "${entityToDelete.name}"? This action cannot be undone.`
+            : "Are you sure you want to delete this entity?"
+        }
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
       />
     </div>
   );

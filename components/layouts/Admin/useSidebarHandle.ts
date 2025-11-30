@@ -9,7 +9,6 @@ export function useSidebarHandle() {
     queryKey: ["databases"],
     queryFn: async () => {
       const response = await DatabasesServices.getDatabases();
-
       return response;
     },
   });

@@ -27,10 +27,11 @@ export const optionSchema = z.object({
 // Field schema
 export const fieldSchema = z.object({
   name: z.string().min(1, "Field name is required"),
-  label: z.string().min(1, "Label is required"),
+  label: z.string().optional(),
   type: z.enum([
     "text",
     "textarea",
+    "string",
     "number",
     "email",
     "password",

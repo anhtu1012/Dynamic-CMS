@@ -14,6 +14,22 @@ import {
   InternalAxiosRequestConfig,
 } from "axios";
 
+// Helper function to get database ID from Redux store
+// This avoids circular dependency by accessing store dynamically
+function getSelectedDatabaseId(): string | null {
+  try {
+    // Access Redux store from window object (set by StoreProvider)
+    const store = (window as any).__REDUX_STORE__;
+    if (store) {
+      const state = store.getState();
+      return state?.database?.selectedDatabase?.id || null;
+    }
+  } catch (error) {
+    console.warn("Could not access Redux store:", error);
+  }
+  return null;
+}
+
 export class AxiosService extends Authorization implements RepositoryPort {
   private static instance: AxiosService;
   protected baseUrl: string;
@@ -112,6 +128,12 @@ export class AxiosService extends Authorization implements RepositoryPort {
 
         const headers = (config.headers as any) || {};
         headers.Accept = "application/json";
+
+        // Add x-database-id header from Redux store
+        const databaseId = getSelectedDatabaseId();
+        if (databaseId) {
+          headers["x-database-id"] = databaseId;
+        }
 
         // Check if we have a token first
         if (token) {

@@ -20,6 +20,4 @@ export type EntitiesListResponse = PaginatedResponse<EntityResponse>;
 export const singleEntitiesResponseSchema = z.object({
   data: entityResponseSchema,
 });
-export type SingleEntitiesResponse = z.infer<
-  typeof singleEntitiesResponseSchema
->;
+export type SingleEntitiesResponse = z.infer<typeof entityResponseSchema>;

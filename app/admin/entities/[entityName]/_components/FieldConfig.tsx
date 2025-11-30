@@ -27,6 +27,7 @@ interface FieldConfigProps {
 const fieldTypes = [
   { value: "text", label: "Text" },
   { value: "textarea", label: "Text Area" },
+  { value: "string", label: "String" },
   { value: "number", label: "Number" },
   { value: "email", label: "Email" },
   { value: "password", label: "Password" },
@@ -74,7 +75,7 @@ export function FieldConfig({ field, onUpdate, onRemove }: FieldConfigProps) {
   };
 
   return (
-    <Card className="p-4 space-y-4">
+    <Card className="p-4 space-y-4 gap-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Badge variant="outline">{field.type}</Badge>
@@ -103,52 +104,51 @@ export function FieldConfig({ field, onUpdate, onRemove }: FieldConfigProps) {
           </Button>
         </div>
       </div>
-
+      <>
+        {" "}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor={`field-name-${field.name}`}>Field Name *</Label>
+            <Input
+              id={`field-name-${field.name}`}
+              value={field.name}
+              onChange={(e) => updateField({ name: e.target.value })}
+              placeholder="field_name"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`field-type-${field.name}`}>Field Type *</Label>
+            <Select
+              value={field.type}
+              onValueChange={(value) =>
+                updateField({ type: value as FieldFormData["type"] })
+              }
+            >
+              <SelectTrigger id={`field-type-${field.name}`} className="w-full">
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                {fieldTypes.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </>
       {!collapsed && (
         <>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor={`field-name-${field.name}`}>Field Name *</Label>
-              <Input
-                id={`field-name-${field.name}`}
-                value={field.name}
-                onChange={(e) => updateField({ name: e.target.value })}
-                placeholder="field_name"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={`field-label-${field.name}`}>Label *</Label>
+              <Label htmlFor={`field-label-${field.name}`}>Label </Label>
               <Input
                 id={`field-label-${field.name}`}
                 value={field.label}
                 onChange={(e) => updateField({ label: e.target.value })}
                 placeholder="Field Label"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={`field-type-${field.name}`}>Field Type *</Label>
-              <Select
-                value={field.type}
-                onValueChange={(value) =>
-                  updateField({ type: value as FieldFormData["type"] })
-                }
-              >
-                <SelectTrigger
-                  id={`field-type-${field.name}`}
-                  className="w-full"
-                >
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent className="w-full">
-                  {fieldTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-2">
@@ -162,7 +162,6 @@ export function FieldConfig({ field, onUpdate, onRemove }: FieldConfigProps) {
               />
             </div>
           </div>
-
           <div className="space-y-2">
             <Label htmlFor={`field-description-${field.name}`}>
               Description

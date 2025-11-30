@@ -4,10 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { UseQueryOptions } from "@tanstack/react-query";
 import { toast } from "sonner";
 import EntityServices from "@/services/entity/entity.service";
-import {
-  CreateEntityRequestItem,
-  UpdateEntityRequestItem,
-} from "@/lib/schemas/entity/entity.request";
+import { UpdateEntityRequestItem } from "@/lib/schemas/entity/entity.request";
 
 // Helper to extract error messages from server responses
 function extractErrorMessage(error: unknown): string | undefined {
@@ -38,24 +35,18 @@ function extractErrorMessage(error: unknown): string | undefined {
   return undefined;
 }
 
-// Hook to fetch entities list with pagination
-export function useEntities(
-  databaseId?: string,
-  page: number = 1,
-  limit: number = 10
-) {
+// Hook to fetch entity by name
+export function useEntityByName(entityName: string) {
   const options: UseQueryOptions = {
-    queryKey: ["entities", databaseId, page, limit],
+    queryKey: ["entity", "name", entityName],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      // Remove databaseId from params - it will be sent via header
-      params.append("page", String(page));
-      params.append("limit", String(limit));
-      return await EntityServices.getEntities(params);
+      const response = await EntityServices.getEntityByName(entityName);
+
+      return response;
     },
-    enabled: !!databaseId,
+    enabled: !!entityName,
     onError: (error: unknown) => {
-      const msg = extractErrorMessage(error) || "Failed to fetch entities";
+      const msg = extractErrorMessage(error) || "Failed to fetch entity";
       toast.error(msg);
     },
   } as UseQueryOptions;
@@ -63,47 +54,8 @@ export function useEntities(
   return useQuery(options);
 }
 
-// Hook to fetch single entity by id
-export function useEntityById(id: string) {
-  const singleOptions: UseQueryOptions = {
-    queryKey: ["entity", id],
-    queryFn: async () => {
-      return await EntityServices.getEntityById(id);
-    },
-    enabled: !!id,
-    onError: (error: unknown) => {
-      const msg = extractErrorMessage(error) || "Failed to fetch entity";
-      toast.error(msg);
-    },
-  } as UseQueryOptions;
-
-  return useQuery(singleOptions);
-}
-
-// Hook to create a new entity
-export function useCreateEntity() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (formData: CreateEntityRequestItem) => {
-      return await EntityServices.createEntity(formData);
-    },
-    onSuccess: (data) => {
-      // Invalidate all entities queries for the specific database
-      queryClient.invalidateQueries({
-        queryKey: ["entities", data.databaseId],
-      });
-      toast.success("Entity created successfully!");
-    },
-    onError: (error: unknown) => {
-      const msg = extractErrorMessage(error) || "Failed to create entity";
-      toast.error(msg);
-    },
-  });
-}
-
-// Hook to update an entity
-export function useUpdateEntity() {
+// Hook to update entity from detail page
+export function useUpdateEntityDetail() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -117,8 +69,13 @@ export function useUpdateEntity() {
       return await EntityServices.updateEntity(id, formData);
     },
     onSuccess: (data) => {
-      // Invalidate both the entity detail and all list queries
+      // Invalidate the specific entity query by name
+      queryClient.invalidateQueries({
+        queryKey: ["entity", "name", data.name],
+      });
+      // Also invalidate by ID
       queryClient.invalidateQueries({ queryKey: ["entity", data._id] });
+      // Invalidate list queries
       queryClient.invalidateQueries({
         queryKey: ["entities", data.databaseId],
       });
@@ -131,8 +88,8 @@ export function useUpdateEntity() {
   });
 }
 
-// Hook to delete an entity (permanent)
-export function useDeleteEntity() {
+// Hook to delete entity from detail page
+export function useDeleteEntityDetail() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -140,6 +97,7 @@ export function useDeleteEntity() {
       return await EntityServices.deactivateEntityPermanent(id);
     },
     onSuccess: (_, variables) => {
+      // Invalidate all related queries
       queryClient.invalidateQueries({
         queryKey: ["entities", variables.databaseId],
       });
@@ -147,27 +105,6 @@ export function useDeleteEntity() {
     },
     onError: (error: unknown) => {
       const msg = extractErrorMessage(error) || "Failed to delete entity";
-      toast.error(msg);
-    },
-  });
-}
-
-// Hook to soft delete/deactivate an entity
-export function useDeactivateEntity() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id }: { id: string; databaseId: string }) => {
-      return await EntityServices.deactivateEntity(id);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["entities", variables.databaseId],
-      });
-      toast.success("Entity deactivated successfully!");
-    },
-    onError: (error: unknown) => {
-      const msg = extractErrorMessage(error) || "Failed to deactivate entity";
       toast.error(msg);
     },
   });
