@@ -8,6 +8,8 @@ import {
   CreateEntityRequestItem,
   UpdateEntityRequestItem,
 } from "@/lib/schemas/entity/entity.request";
+import DynamicServices from "@/services/dynamic/dynamic.service";
+import DynamicDataServices from "@/services/dynamic-data/dynamic-data.service";
 
 // Helper to extract error messages from server responses
 function extractErrorMessage(error: unknown): string | undefined {
@@ -168,6 +170,33 @@ export function useDeactivateEntity() {
     },
     onError: (error: unknown) => {
       const msg = extractErrorMessage(error) || "Failed to deactivate entity";
+      toast.error(msg);
+    },
+  });
+}
+
+// Hook to import JSON data
+export function useImportJson() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      data,
+      collectionName,
+    }: {
+      data: any[];
+      collectionName: string;
+    }) => {
+      return await DynamicDataServices.importJson(data, collectionName);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["entities", variables.collectionName],
+      });
+      toast.success("Data imported successfully!");
+    },
+    onError: (error: unknown) => {
+      const msg = extractErrorMessage(error) || "Failed to import data";
       toast.error(msg);
     },
   });

@@ -37,9 +37,9 @@ const fieldTypes = [
   { value: "select", label: "Select" },
   { value: "radio", label: "Radio" },
   { value: "checkbox", label: "Checkbox" },
-  { value: "file", label: "File" },
-  { value: "image", label: "Image" },
-  { value: "reference", label: "Reference" },
+  // { value: "file", label: "File" },
+  // { value: "image", label: "Image" },
+  // { value: "reference", label: "Reference" },
   { value: "array", label: "Array" },
   { value: "json", label: "JSON" },
 ];

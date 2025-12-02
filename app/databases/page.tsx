@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -29,6 +30,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+
+import { permissionLimits } from "@/lib/mock-data/permission";
 
 export default function DatabaseSelectionPage() {
   const router = useRouter();
@@ -94,6 +97,7 @@ export default function DatabaseSelectionPage() {
   }
 
   const databases = databasesData?.data || [];
+  const isLimitReached = databases.length >= permissionLimits.databaseLimits;
 
   return (
     <>
@@ -110,10 +114,19 @@ export default function DatabaseSelectionPage() {
           </div>
 
           {/* Create New Database Button */}
-          <div className="flex justify-center mb-8">
+          <div className="flex flex-col items-center justify-center mb-8 gap-2">
             <Button
               size="lg"
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={() => {
+                if (isLimitReached) {
+                  toast.error(
+                    `You have reached the limit of ${permissionLimits.databaseLimits} databases.`
+                  );
+                  return;
+                }
+                setIsCreateModalOpen(true);
+              }}
+              disabled={isLimitReached}
               className="gap-2"
             >
               <svg
@@ -129,8 +142,14 @@ export default function DatabaseSelectionPage() {
               >
                 <path d="M12 5v14M5 12h14" />
               </svg>
-              Create New Database
+              Create New Database ({databases.length}/{permissionLimits.databaseLimits})
             </Button>
+            {isLimitReached && (
+              <p className="text-sm text-red-500">
+                You have reached the maximum limit of{" "}
+                {permissionLimits.databaseLimits} databases.
+              </p>
+            )}
           </div>
 
           {/* Database Cards Grid */}

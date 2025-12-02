@@ -189,8 +189,8 @@ export function EntityFormModal({
       type: "text",
       showInList: true,
       showInForm: true,
-      sortable: false,
-      searchable: false,
+      sortable: true,
+      searchable: true,
       order: fields.length,
     };
     setFields([...fields, newField]);
@@ -244,11 +244,11 @@ export function EntityFormModal({
             defaultValue="basic"
             className="w-full flex flex-col flex-1 overflow-hidden"
           >
-            <TabsList className="grid w-full grid-cols-4 mx-6 mt-4">
+            <TabsList className="grid w-full grid-cols-2 mx-6 mt-4">
               <TabsTrigger value="basic">Basic Info</TabsTrigger>
               <TabsTrigger value="fields">Fields</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-              <TabsTrigger value="permissions">Permissions</TabsTrigger>
+              {/* <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="permissions">Permissions</TabsTrigger> */}
             </TabsList>
 
             <div className="flex-1 overflow-y-auto px-6 pb-4">
@@ -261,7 +261,7 @@ export function EntityFormModal({
                       <Input
                         id="name"
                         value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={(e) => field.handleChange(e.target.value.toLocaleLowerCase().trim())}
                         onBlur={field.handleBlur}
                         placeholder="products"
                         disabled={isEdit}

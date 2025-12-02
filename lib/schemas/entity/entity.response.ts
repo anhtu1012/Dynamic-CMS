@@ -21,3 +21,19 @@ export const singleEntitiesResponseSchema = z.object({
   data: entityResponseSchema,
 });
 export type SingleEntitiesResponse = z.infer<typeof entityResponseSchema>;
+
+export const bulkImportResponseSchema = z.object({
+  deleted: z.number(),
+  created: z.number(),
+  failed: z.number(),
+  results: z.array(
+    z.object({
+      success: z.boolean(),
+      data: z.any().optional(),
+      error: z.string().optional(),
+      index: z.number(),
+    })
+  ),
+});
+
+export type BulkImportResponse = z.infer<typeof bulkImportResponseSchema>;

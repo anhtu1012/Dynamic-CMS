@@ -238,7 +238,7 @@ export default function EntityDetailPage() {
       </div>
 
       <Tabs defaultValue="data" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="data">
             Data ({dynamicDataResult?.total || 0})
           </TabsTrigger>
@@ -246,8 +246,8 @@ export default function EntityDetailPage() {
             Fields ({entity.fields?.length || 0})
           </TabsTrigger>
           <TabsTrigger value="api">API Endpoints</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-          <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          {/* <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="permissions">Permissions</TabsTrigger> */}
         </TabsList>
 
         {/* Data Tab */}
@@ -256,6 +256,7 @@ export default function EntityDetailPage() {
             dynamicDataLoading={dynamicDataLoading}
             dynamicDataResult={dynamicDataResult}
             dynamicDataColumns={dynamicDataColumns}
+            collectionName={entityName}
             limit={limit}
             onPageChange={setPage}
             onCreateData={handleCreateData}

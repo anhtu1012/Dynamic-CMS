@@ -105,6 +105,10 @@ class DynamicDataServicesBase extends AxiosService {
   async deleteDynamicData(collectionName: string, id: string): Promise<void> {
     return this.delete<void>(`${this.getBasePath()}/${collectionName}/${id}`);
   }
+   // Import JSON data
+  async importJson(data: any[], collectionName: string): Promise<any> {
+    return this.put<any, any[]>(`${this.getBasePath()}/${collectionName}/replace-all`, data);
+  }
 }
 
 const DynamicDataServices = new DynamicDataServicesBase();

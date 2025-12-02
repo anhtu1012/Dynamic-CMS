@@ -57,7 +57,7 @@ class EntityServicesBase extends AxiosService {
       formData,
       UpdateEntityRequest as unknown as ZodSchema
     );
-    return this.put<SingleEntitiesResponse, UpdateEntityRequestItem>(
+    return this.patch<SingleEntitiesResponse, UpdateEntityRequestItem>(
       `${this.basePath}/${id}`,
       formData
     );
@@ -72,6 +72,8 @@ class EntityServicesBase extends AxiosService {
   async deactivateEntityPermanent(id: string): Promise<void> {
     await this.delete<void>(`${this.basePath}/${id}`);
   }
+
+ 
 }
 
 const EntityServices = new EntityServicesBase();
