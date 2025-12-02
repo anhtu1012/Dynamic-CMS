@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -38,7 +40,9 @@ export default function Login() {
             Enter your email below to login to your account
           </CardDescription>
           <CardAction>
-            <Button variant="link">Sign Up</Button>
+            <Link href="/register">
+              <Button variant="link">Sign Up</Button>
+            </Link>
           </CardAction>
         </CardHeader>
         <CardContent>
@@ -63,6 +67,7 @@ export default function Login() {
                   <div className="grid gap-2">
                     <Label htmlFor="emailOrUsername">Email hoặc Username</Label>
                     <Input
+                    tabIndex={1}
                       id="emailOrUsername"
                       type="text"
                       placeholder="m@example.com hoặc username"
@@ -99,6 +104,7 @@ export default function Login() {
                       </a>
                     </div>
                     <Input
+                    tabIndex={2}
                       id="password"
                       type="password"
                       value={field.state.value}
