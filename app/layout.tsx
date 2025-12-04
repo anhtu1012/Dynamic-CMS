@@ -7,6 +7,7 @@ import ErrorBoundary from "@/components/System/ErrorBoundary";
 import Loading from "@/components/System/loading";
 import { ReduxProvider } from "./StoreProvider";
 import QueryProvider from "./QueryProvider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,14 +35,21 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {" "}
-        <ReduxProvider>
-          <QueryProvider>
-            <ErrorBoundary>
-              <React.Suspense fallback={<Loading />}>{children}</React.Suspense>
-            </ErrorBoundary>
-            <Toaster />
-          </QueryProvider>
-        </ReduxProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ReduxProvider>
+            <QueryProvider>
+              <ErrorBoundary>
+                <React.Suspense fallback={<Loading />}>{children}</React.Suspense>
+              </ErrorBoundary>
+              <Toaster />
+            </QueryProvider>
+          </ReduxProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
