@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { DataTable } from "@/components/custom/DataTable/data-table";
 import { Button } from "@/components/ui/button";
