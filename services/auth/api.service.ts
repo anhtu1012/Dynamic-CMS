@@ -24,9 +24,11 @@ class AuthServicesBase extends AxiosService {
     return this.post(`${this.basePath}/register`, formData);
   }
 
-  // async logout(token: string): Promise<UserResponseLogoutItem> {
-  //   return this.post(`${this.basePath}/logout`, { token: token });
-  // }
+
+
+  async refreshUserToken(refreshToken: string): Promise<any> {
+    return this.post(`${this.basePath}/refresh-token`, { refreshToken: refreshToken });
+  }
 
   async forgotPassword(userId: string, newPassword: string): Promise<void> {
     return this.put(`/v1/sa/user/password/${userId}`, {

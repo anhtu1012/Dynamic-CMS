@@ -25,6 +25,19 @@ import {
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useNavigation } from "./layout";
+import { useSelector, useDispatch } from "react-redux";
+import { selectAuthLogin, clearAuthData } from "@/redux/store/slices/loginSlice";
+import { AxiosService } from "@/apis/axios.base";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut, User } from "lucide-react";
+
 
 type SectionType = "hero" | "features" | "fieldTypes" | "howItWorks" | "cta";
 
@@ -260,6 +273,19 @@ function Page() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
   const router = useRouter();
+  const { userProfile } = useSelector(selectAuthLogin);
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      await AxiosService.getInstance().logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      dispatch(clearAuthData());
+      router.push("/login");
+    }
+  };
 
   useEffect(() => {
     AOS.init({
@@ -447,18 +473,53 @@ function Page() {
 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center gap-4">
-              <button
-                onClick={() => router.push("/register")}
-                className="text-gray-300 hover:text-white font-medium transition-all duration-700"
-              >
-                Đăng ký
-              </button>
-              <button
-                onClick={() => router.push("/login")}
-                className="bg-white text-black hover:bg-gray-200 px-6 py-2 rounded-lg font-semibold transition-all duration-700"
-              >
-                Đăng nhập
-              </button>
+              {userProfile?.email ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors duration-300 outline-none">
+                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <span className="font-medium max-w-[150px] truncate">
+                        {userProfile.userName || userProfile.email}
+                      </span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-black/90 border-white/20 backdrop-blur-xl text-white">
+                    <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-white/20" />
+                    <DropdownMenuItem
+                      className="cursor-pointer focus:bg-white/10 focus:text-white"
+                      onClick={() => router.push("/databases")}
+                    >
+                      <Database className="mr-2 h-4 w-4" />
+                      <span>Truy cập CMS</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="cursor-pointer text-red-400 focus:text-red-400 focus:bg-red-900/20"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Đăng xuất</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <button
+                    onClick={() => router.push("/register")}
+                    className="text-gray-300 hover:text-white font-medium transition-all duration-700"
+                  >
+                    Đăng ký
+                  </button>
+                  <button
+                    onClick={() => router.push("/login")}
+                    className="bg-white text-black hover:bg-gray-200 px-6 py-2 rounded-lg font-semibold transition-all duration-700"
+                  >
+                    Đăng nhập
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -492,18 +553,45 @@ function Page() {
                   </button>
                 ))}
                 <div className="flex flex-col gap-2 mt-2">
-                  <button
-                    onClick={() => router.push("/register")}
-                    className="text-gray-300 hover:text-white font-medium transition-all duration-700 text-left"
-                  >
-                    Đăng ký
-                  </button>
-                  <button
-                    onClick={() => router.push("/login")}
-                    className="bg-white text-black hover:bg-gray-200 px-6 py-2 rounded-lg font-semibold transition-all duration-700"
-                  >
-                    Đăng nhập
-                  </button>
+                  {userProfile?.email ? (
+                    <>
+                      <div className="flex items-center gap-2 px-2 py-2 text-gray-300">
+                        <User className="w-4 h-4" />
+                        <span className="font-medium truncate">
+                          {userProfile.userName || userProfile.email}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => router.push("/databases")}
+                        className="bg-white text-black hover:bg-gray-200 px-6 py-2 rounded-lg font-semibold transition-all duration-700 flex items-center justify-center gap-2"
+                      >
+                        <Database className="w-4 h-4" />
+                        Truy cập CMS
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="bg-red-500/10 text-red-400 hover:bg-red-500/20 px-6 py-2 rounded-lg font-semibold transition-all duration-700 flex items-center justify-center gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Đăng xuất
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => router.push("/register")}
+                        className="text-gray-300 hover:text-white font-medium transition-all duration-700 text-left"
+                      >
+                        Đăng ký
+                      </button>
+                      <button
+                        onClick={() => router.push("/login")}
+                        className="bg-white text-black hover:bg-gray-200 px-6 py-2 rounded-lg font-semibold transition-all duration-700"
+                      >
+                        Đăng nhập
+                      </button>
+                    </>
+                  )}
                 </div>
               </nav>
             </div>
@@ -573,6 +661,15 @@ function Page() {
 // Hero Section Component
 function HeroSection() {
   const router = useRouter();
+  const { userProfile } = useSelector(selectAuthLogin);
+
+  const handleStart = () => {
+    if (userProfile.userName) {
+      router.push("/databases");
+    } else {
+      router.push("/login");
+    }
+  };
 
   return (
     <section className="relative h-full overflow-hidden text-white flex items-center">
@@ -599,7 +696,7 @@ function HeroSection() {
             style={{ pointerEvents: "auto" }}
           >
             <button
-              onClick={() => router.push("/login")}
+              onClick={handleStart}
               className="group bg-white text-black px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300 flex items-center gap-2"
             >
               Bắt đầu ngay
@@ -797,9 +894,18 @@ function HowItWorksSection() {
   );
 }
 
-// CTA Section Component
+// CTASection Component
 function CTASection() {
   const router = useRouter();
+  const { userProfile } = useSelector(selectAuthLogin);
+
+  const handleStart = () => {
+    if (userProfile) {
+      router.push("/databases");
+    } else {
+      router.push("/login");
+    }
+  };
 
   return (
     <section className="h-full text-white relative overflow-hidden flex items-center">
@@ -819,7 +925,7 @@ function CTASection() {
             style={{ pointerEvents: "auto" }}
           >
             <button
-              onClick={() => router.push("/login")}
+              onClick={handleStart}
               className="group bg-white text-black px-10 py-5 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 inline-flex items-center gap-2 hover:scale-105"
             >
               Dùng thử miễn phí

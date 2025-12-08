@@ -103,6 +103,31 @@ export default function DatabaseSelectionPage() {
     <>
       <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-12 px-4">
         <div className="max-w-6xl mx-auto">
+          <div className="mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => router.push("/")}
+              className="gap-2 pl-0 hover:bg-transparent hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
+              </svg>
+              Back to Home
+            </Button>
+          </div>
+
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">

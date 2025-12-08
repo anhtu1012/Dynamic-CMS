@@ -152,7 +152,7 @@ export class AxiosService extends Authorization implements RepositoryPort {
             const timeLeft = expDate - currentDate;
             const timeLeftInMinutes = Math.floor(timeLeft / 60);
 
-            if (timeLeftInMinutes > 0 && timeLeftInMinutes < 8) {
+            if (timeLeftInMinutes > 0 && timeLeftInMinutes < 10) {
               const res = await axios.post<{
                 accessToken: string;
                 refreshToken: string;
@@ -160,10 +160,10 @@ export class AxiosService extends Authorization implements RepositoryPort {
                 refreshToken: refreshTokenn,
               });
               // console.log("Token refreshed successfully:", res.data);
-              document.cookie = "token=; Max-Age=0; path=/;";
+              document.cookie = "accessToken=; Max-Age=0; path=/;";
               document.cookie = "refreshToken=; Max-Age=0; path=/;";
               // Set cookies with proper configuration
-              this.setCookieSecurely("token", res.data.accessToken);
+              this.setCookieSecurely("accessToken", res.data.accessToken);
               this.setCookieSecurely("refreshToken", res.data.refreshToken);
               // Update the token we'll use for this request
               headers.Authorization = `Bearer ${res.data.accessToken}`;
@@ -204,6 +204,19 @@ export class AxiosService extends Authorization implements RepositoryPort {
     // Also update the token in the instance if it's the access token
     if (name === "token") {
       this.token = value;
+    }
+  }
+
+  async logout(): Promise<void> {
+    try {
+      const refreshToken = getCookie("refreshToken");
+      await this.post("/v1/auth/logout", { refreshToken });
+    } catch (error) {
+      console.error("Logout API failed", error);
+    } finally {
+      document.cookie = "accessToken=; Max-Age=0; path=/;";
+      document.cookie = "refreshToken=; Max-Age=0; path=/;";
+      // window.location.href = "/login";
     }
   }
 }
