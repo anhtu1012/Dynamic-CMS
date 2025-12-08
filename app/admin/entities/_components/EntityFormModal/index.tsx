@@ -220,12 +220,12 @@ export function EntityFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl min-w-[50vw] max-h-[90vh] flex flex-col p-0">
+      <DialogContent className="max-w-5xl min-w-[50vw] max-h-[90vh] flex flex-col p-0 dark:bg-slate-900 dark:border-slate-700">
         <DialogHeader className="px-6 pt-6">
-          <DialogTitle>
+          <DialogTitle className="dark:text-white">
             {isEdit ? "Edit Entity" : "Create New Entity"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="dark:text-slate-400">
             {isEdit
               ? "Update the entity configuration"
               : "Define your entity structure and fields"}
@@ -244,9 +244,9 @@ export function EntityFormModal({
             defaultValue="basic"
             className="w-full flex flex-col flex-1 overflow-hidden"
           >
-            <TabsList className="grid w-full grid-cols-2 mx-6 mt-4">
-              <TabsTrigger value="basic">Basic Info</TabsTrigger>
-              <TabsTrigger value="fields">Fields</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mx-6 mt-4 dark:bg-slate-800">
+              <TabsTrigger value="basic" className="dark:data-[state=active]:bg-slate-700 dark:text-slate-300">Basic Info</TabsTrigger>
+              <TabsTrigger value="fields" className="dark:data-[state=active]:bg-slate-700 dark:text-slate-300">Fields</TabsTrigger>
               {/* <TabsTrigger value="settings">Settings</TabsTrigger>
               <TabsTrigger value="permissions">Permissions</TabsTrigger> */}
             </TabsList>
@@ -503,16 +503,17 @@ export function EntityFormModal({
             </div>
           </Tabs>
 
-          <DialogFooter className="border-t bg-background px-6 py-4 mt-0">
+          <DialogFooter className="border-t bg-background dark:bg-slate-900 dark:border-slate-700 px-6 py-4 mt-0">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700"
             >
               <X className="h-4 w-4 mr-2" />
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" className="dark:bg-white dark:text-black dark:hover:bg-gray-200">
               <Save className="h-4 w-4 mr-2" />
               {isEdit ? "Update" : "Create"} Entity
             </Button>

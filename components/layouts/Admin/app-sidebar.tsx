@@ -74,13 +74,13 @@ export function AppSidebar() {
     {
       title: "Entity",
       icon: Table,
-      url: "entities",
+      url: "/entities",
       items: [
-        { title: "Create New Entity", url: "admin/entities" },
+        { title: "Create New Entity", url: "/admin/entities" },
         ...((entitiesResponse as EntitiesListResponse)?.data ?? []).map(
           (item) => ({
             title: item.displayName,
-            url: `entities/${item.name}`,
+            url: `/admin/entities/${item.name}`,
           })
         ),
       ],

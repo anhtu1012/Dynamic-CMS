@@ -121,10 +121,10 @@ export default function UpdateDatabaseModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col dark:bg-slate-900 dark:border-slate-700">
         <DialogHeader>
-          <DialogTitle>Update Database</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="dark:text-white">Update Database</DialogTitle>
+          <DialogDescription className="dark:text-slate-400">
             Update the details of your database.
           </DialogDescription>
         </DialogHeader>
@@ -141,16 +141,16 @@ export default function UpdateDatabaseModal({
             defaultValue="basic"
             className="flex-1 flex flex-col overflow-hidden"
           >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="basic">Basic Info</TabsTrigger>
-              <TabsTrigger value="settings">Settings & Tags</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 dark:bg-slate-800">
+              <TabsTrigger value="basic" className="dark:data-[state=active]:bg-slate-700 dark:text-slate-300">Basic Info</TabsTrigger>
+              <TabsTrigger value="settings" className="dark:data-[state=active]:bg-slate-700 dark:text-slate-300">Settings & Tags</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 overflow-y-auto px-1">
               <TabsContent value="basic" className="space-y-4 mt-4">
                 {/* Icon Selection */}
                 <div className="space-y-2">
-                  <Label>Database Icon</Label>
+                  <Label className="dark:text-slate-200">Database Icon</Label>
                   <div className="flex gap-2 flex-wrap">
                     {commonIcons.map((icon) => (
                       <button
@@ -159,8 +159,8 @@ export default function UpdateDatabaseModal({
                         onClick={() => setSelectedIcon(icon)}
                         className={`text-3xl p-2 rounded-lg border-2 transition-all ${
                           selectedIcon === icon
-                            ? "border-primary bg-primary/10"
-                            : "border-gray-200 hover:border-gray-300"
+                            ? "border-primary bg-primary/10 dark:border-white dark:bg-white/20"
+                            : "border-gray-200 hover:border-gray-300 dark:border-slate-600 dark:hover:border-slate-500"
                         }`}
                       >
                         {icon}
@@ -244,7 +244,7 @@ export default function UpdateDatabaseModal({
               <TabsContent value="settings" className="space-y-4 mt-4">
                 {/* Settings */}
                 <div className="space-y-4">
-                  <h3 className="font-semibold">Database Settings</h3>
+                  <h3 className="font-semibold dark:text-white">Database Settings</h3>
 
                   <form.Field name="settings.defaultLanguage">
                     {(field) => (
@@ -293,7 +293,7 @@ export default function UpdateDatabaseModal({
 
                 {/* Tags */}
                 <div className="space-y-2">
-                  <Label>Tags</Label>
+                  <Label className="dark:text-slate-200">Tags</Label>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Add tag (e.g., production)"
@@ -305,11 +305,13 @@ export default function UpdateDatabaseModal({
                           handleAddTag();
                         }
                       }}
+                      className="dark:bg-slate-800 dark:border-slate-600 dark:text-white"
                     />
                     <Button
                       type="button"
                       onClick={handleAddTag}
                       variant="outline"
+                      className="dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:hover:bg-slate-700"
                     >
                       Add
                     </Button>
@@ -319,7 +321,7 @@ export default function UpdateDatabaseModal({
                       {tags.map((tag) => (
                         <span
                           key={tag}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm"
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm dark:bg-slate-700 dark:text-slate-200"
                         >
                           {tag}
                           <button
@@ -343,10 +345,11 @@ export default function UpdateDatabaseModal({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:hover:bg-slate-700"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
+            <Button type="submit" disabled={updateMutation.isPending} className="dark:bg-white dark:text-black dark:hover:bg-gray-200">
               {updateMutation.isPending ? "Updating..." : "Update Database"}
             </Button>
           </DialogFooter>

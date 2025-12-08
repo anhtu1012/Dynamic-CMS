@@ -72,7 +72,7 @@ export function ApiTab({ entity }: ApiTabProps) {
       </CardHeader>
       <CardContent>
         {/* Authentication Notice */}
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        {/* <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
           <p className="text-sm text-amber-900 font-medium mb-2">
             🔐 Required Headers:
           </p>
@@ -88,7 +88,7 @@ export function ApiTab({ entity }: ApiTabProps) {
               </code>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="space-y-4">
           {/* POST Create */}

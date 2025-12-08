@@ -190,8 +190,12 @@ export function useImportJson() {
       return await DynamicDataServices.importJson(data, collectionName);
     },
     onSuccess: (_, variables) => {
+      // Invalidate both entities and dynamic-data queries to refresh the data
       queryClient.invalidateQueries({
         queryKey: ["entities", variables.collectionName],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["dynamic-data", variables.collectionName],
       });
       toast.success("Data imported successfully!");
     },

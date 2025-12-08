@@ -29,6 +29,8 @@ import {
 } from "./_hooks/useEntities";
 import type { RootState } from "@/redux/store";
 import { formEventClient } from "@tanstack/react-form";
+import { permissionLimits } from "@/lib/mock-data/permission";
+import { toast } from "sonner";
 
 export default function EntitiesPage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -64,6 +66,14 @@ export default function EntitiesPage() {
   const totalItems = (entitiesResponse as EntitiesListResponse)?.total || 0;
 
   const handleCreate = () => {
+    // Check if entity limit is reached
+    if (totalItems >= permissionLimits.entityLimits) {
+      toast.error(
+        `You have reached the limit of ${permissionLimits.entityLimits} entities per database.`
+      );
+      return;
+    }
+    
     setSelectedEntity(undefined);
     setModalOpen(true);
   };
@@ -105,18 +115,21 @@ export default function EntitiesPage() {
         accessorKey: "name",
         header: "Name",
         cell: ({ row }) => (
-          <span className="font-mono font-medium">{row.original.name}</span>
+          <span className="font-mono font-medium dark:text-slate-200">{row.original.name}</span>
         ),
       },
       {
         accessorKey: "displayName",
         header: "Display Name",
+        cell: ({ row }) => (
+          <span className="dark:text-slate-300">{row.original.displayName}</span>
+        ),
       },
       {
         accessorKey: "description",
         header: "Description",
         cell: ({ row }) => (
-          <span className="max-w-xs truncate block">
+          <span className="max-w-xs truncate block dark:text-slate-400">
             {row.original.description || "-"}
           </span>
         ),
@@ -125,7 +138,7 @@ export default function EntitiesPage() {
         id: "fields",
         header: "Fields",
         cell: ({ row }) => (
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="dark:bg-slate-700 dark:text-slate-200">
             {row.original.fields?.length || 0} fields
           </Badge>
         ),
@@ -136,17 +149,17 @@ export default function EntitiesPage() {
         cell: ({ row }) => (
           <div className="flex gap-1">
             {row.original.timestamps && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs dark:border-slate-600 dark:text-slate-300">
                 Timestamps
               </Badge>
             )}
             {row.original.softDelete && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs dark:border-slate-600 dark:text-slate-300">
                 Soft Delete
               </Badge>
             )}
             {row.original.enableApi && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs dark:border-slate-600 dark:text-slate-300">
                 API
               </Badge>
             )}
@@ -156,7 +169,7 @@ export default function EntitiesPage() {
       {
         accessorKey: "version",
         header: "Version",
-        cell: ({ row }) => `v${row.original.version}`,
+        cell: ({ row }) => <span className="dark:text-slate-300">v{row.original.version}</span>,
       },
       {
         id: "actions",
@@ -196,11 +209,11 @@ export default function EntitiesPage() {
   );
 
   return (
-    <div className="w-full p-6">
+    <div className="w-full p-6 dark:bg-slate-950">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Entities</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold dark:text-white">Entities</h1>
+          <p className="text-muted-foreground dark:text-slate-400">
             Manage your data entities and their configurations
           </p>
         </div>
@@ -209,35 +222,43 @@ export default function EntitiesPage() {
             variant="outline"
             onClick={handleRefresh}
             disabled={isFetching}
+            className="dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700"
           >
             <RefreshCw
               className={`h-4 w-4 mr-2 ${isFetching ? "animate-spin" : ""}`}
             />
             Refresh
           </Button>
-          <Button onClick={handleCreate}>
+          <Button 
+            onClick={handleCreate}
+            className="dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Create Entity
           </Button>
         </div>
       </div>
 
-      <Card>
+      <Card className="dark:bg-slate-900 dark:border-slate-800">
         <CardHeader>
-          <CardTitle>Entity List</CardTitle>
-          <CardDescription>
+          <CardTitle className="dark:text-white">Entity List</CardTitle>
+          <CardDescription className="dark:text-slate-400">
             All registered entities in your system
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="text-center py-12 text-muted-foreground dark:text-slate-400">
               Loading...
             </div>
           ) : entities.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="text-center py-12 text-muted-foreground dark:text-slate-400">
               <p className="mb-4">No entities found</p>
-              <Button variant="outline" onClick={handleCreate}>
+              <Button 
+                variant="outline" 
+                onClick={handleCreate}
+                className="dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Entity
               </Button>

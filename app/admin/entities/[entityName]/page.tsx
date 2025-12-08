@@ -29,6 +29,8 @@ import { ApiTab } from "./_components/ApiTab";
 import { SettingsTab } from "./_components/SettingsTab";
 import { PermissionsTab } from "./_components/PermissionsTab";
 import { useEntityColumns } from "./_hooks/useEntityColumns";
+import { permissionLimits } from "@/lib/mock-data/permission";
+import { toast } from "sonner";
 
 export default function EntityDetailPage() {
   const params = useParams();
@@ -89,6 +91,15 @@ export default function EntityDetailPage() {
   };
 
   const handleCreateData = () => {
+    // Check if data limit is reached
+    const currentDataCount = dynamicDataResult?.total || 0;
+    if (currentDataCount >= permissionLimits.dataLimits) {
+      toast.error(
+        `You have reached the limit of ${permissionLimits.dataLimits} data records per entity.`
+      );
+      return;
+    }
+
     setSelectedData(null);
     setValidationErrors(null);
     setDataModalOpen(true);

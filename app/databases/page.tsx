@@ -80,15 +80,15 @@ export default function DatabaseSelectionPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
         <div className="w-full max-w-6xl px-4">
           <div className="text-center mb-8">
-            <Skeleton className="h-10 w-64 mx-auto mb-4" />
-            <Skeleton className="h-6 w-96 mx-auto" />
+            <Skeleton className="h-10 w-64 mx-auto mb-4 dark:bg-slate-800" />
+            <Skeleton className="h-6 w-96 mx-auto dark:bg-slate-800" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-64 w-full" />
+              <Skeleton key={i} className="h-64 w-full dark:bg-slate-800" />
             ))}
           </div>
         </div>
@@ -101,14 +101,14 @@ export default function DatabaseSelectionPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-12 px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Select a Database
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 dark:text-slate-400">
               Choose a database to work with or create a new one
             </p>
           </div>
@@ -127,7 +127,7 @@ export default function DatabaseSelectionPage() {
                 setIsCreateModalOpen(true);
               }}
               disabled={isLimitReached}
-              className="gap-2"
+              className="gap-2 dark:bg-white dark:text-black dark:hover:bg-gray-200"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -142,10 +142,11 @@ export default function DatabaseSelectionPage() {
               >
                 <path d="M12 5v14M5 12h14" />
               </svg>
-              Create New Database ({databases.length}/{permissionLimits.databaseLimits})
+              Create New Database ({databases.length}/
+              {permissionLimits.databaseLimits})
             </Button>
             {isLimitReached && (
-              <p className="text-sm text-red-500">
+              <p className="text-sm text-red-500 dark:text-red-400">
                 You have reached the maximum limit of{" "}
                 {permissionLimits.databaseLimits} databases.
               </p>
@@ -155,7 +156,7 @@ export default function DatabaseSelectionPage() {
           {/* Database Cards Grid */}
           {databases.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-gray-500 text-lg mb-4">
+              <p className="text-gray-500 dark:text-slate-400 text-lg mb-4">
                 No databases found. Create your first database to get started.
               </p>
             </div>
@@ -164,7 +165,7 @@ export default function DatabaseSelectionPage() {
               {databases.map((database) => (
                 <Card
                   key={database.id}
-                  className="flex flex-col h-full hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary"
+                  className="flex flex-col h-full hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary dark:bg-slate-900 dark:border-slate-700 dark:hover:border-white"
                   onClick={() => handleSelectDatabase(database)}
                 >
                   <CardHeader>
@@ -174,10 +175,10 @@ export default function DatabaseSelectionPage() {
                           {database.icon || "💾"}
                         </span>
                         <div>
-                          <CardTitle className="text-xl">
+                          <CardTitle className="text-xl dark:text-white">
                             {database.displayName || database.name}
                           </CardTitle>
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
                             {database.name}
                           </p>
                         </div>
@@ -185,7 +186,7 @@ export default function DatabaseSelectionPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="flex-1">
-                    <CardDescription className="mb-4 min-h-12 whitespace-pre-wrap wrap-break-word">
+                    <CardDescription className="mb-4 min-h-12 whitespace-pre-wrap wrap-break-word dark:text-slate-400">
                       {database.description || "No description"}
                     </CardDescription>
 
@@ -193,7 +194,11 @@ export default function DatabaseSelectionPage() {
                     {database.tags && database.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {database.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary">
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="dark:bg-slate-700 dark:text-slate-200"
+                          >
                             {tag}
                           </Badge>
                         ))}
@@ -203,14 +208,18 @@ export default function DatabaseSelectionPage() {
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-500">Collections</p>
-                        <p className="font-semibold text-lg">
+                        <p className="text-gray-500 dark:text-slate-400">
+                          Collections
+                        </p>
+                        <p className="font-semibold text-lg dark:text-white">
                           {database.collectionsCount || 0}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Records</p>
-                        <p className="font-semibold text-lg">
+                        <p className="text-gray-500 dark:text-slate-400">
+                          Records
+                        </p>
+                        <p className="font-semibold text-lg dark:text-white">
                           {database.dataCount || 0}
                         </p>
                       </div>
@@ -220,10 +229,12 @@ export default function DatabaseSelectionPage() {
                     <div className="flex items-center gap-2">
                       <div
                         className={`h-2 w-2 rounded-full ${
-                          database.isActive ? "bg-green-500" : "bg-gray-300"
+                          database.isActive
+                            ? "bg-green-500"
+                            : "bg-gray-300 dark:bg-gray-600"
                         }`}
                       />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-slate-400">
                         {database.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
@@ -232,6 +243,7 @@ export default function DatabaseSelectionPage() {
                         size="sm"
                         variant="outline"
                         onClick={(e) => handleEdit(database, e)}
+                        className="dark:bg-slate-800 dark:text-white dark:border-slate-600 dark:hover:bg-slate-700"
                       >
                         Edit
                       </Button>
@@ -239,10 +251,16 @@ export default function DatabaseSelectionPage() {
                         size="sm"
                         variant="destructive"
                         onClick={(e) => handleDelete(database, e)}
+                        className="dark:bg-red-600 dark:hover:bg-red-700"
                       >
                         Delete
                       </Button>
-                      <Button size="sm">Select</Button>
+                      <Button
+                        size="sm"
+                        className="dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                      >
+                        Select
+                      </Button>
                     </div>
                   </CardFooter>
                 </Card>
@@ -260,10 +278,12 @@ export default function DatabaseSelectionPage() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md dark:bg-slate-900 dark:border-slate-700">
           <DialogHeader>
-            <DialogTitle>Confirm Delete</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="dark:text-white">
+              Confirm Delete
+            </DialogTitle>
+            <DialogDescription className="dark:text-slate-400">
               Are you sure you want to delete{" "}
               <strong>
                 {databaseToDelete?.displayName || databaseToDelete?.name}
@@ -272,10 +292,18 @@ export default function DatabaseSelectionPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={cancelDelete}>
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              className="dark:bg-slate-800 dark:text-white dark:border-slate-600 dark:hover:bg-slate-700"
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              className="dark:bg-red-600 dark:hover:bg-red-700"
+            >
               Delete
             </Button>
           </DialogFooter>
