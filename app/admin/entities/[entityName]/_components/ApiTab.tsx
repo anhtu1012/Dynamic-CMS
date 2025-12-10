@@ -378,7 +378,7 @@ export function ApiTab({ entity }: ApiTabProps) {
             </div>
           </div>
 
-          {/* POST Query */}
+          {/* POST Query
           <div className="p-4 border rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -421,7 +421,7 @@ export function ApiTab({ entity }: ApiTabProps) {
             <div className="mt-2 text-xs text-muted-foreground">
               💡 Supports MongoDB query operators ($gte, $lte, $in, etc.)
             </div>
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>

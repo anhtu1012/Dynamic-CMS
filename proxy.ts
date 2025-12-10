@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtDecode } from "jwt-decode";
-const PUBLIC_PATHS = ["/login", "/register", "/forgot-password", "/"];
+const PUBLIC_PATHS = ["/login", "/register", "/forgot-password",];
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (
+    pathname === "/" ||
     PUBLIC_PATHS.some((path) => pathname.startsWith(path)) ||
     pathname.includes(".")
   ) {
